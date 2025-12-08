@@ -4,6 +4,7 @@ from database import SessionLocal
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from models import Todo
+from schemas import TodoBase, TodoOut, TodoIn
 
 router = APIRouter()
 
@@ -22,9 +23,9 @@ async def get_todos(db: Session = Depends(get_db)):
     return todos
 
 
-@router.post('/todos')
-async def create_todo(data=Body(), db: Session = Depends(get_db)):
-    todo_out = Todo(title=data['title'], desc=data['desc'])
+@router.post('/todos', response_model=TodoOut)
+async def create_todo(todo_in: TodoIn, db: Session = Depends(get_db)):
+    todo_out = Todo(**todo_in.model_dump())
     db.add(todo_out)
     db.commit()
     db.refresh(todo_out)
@@ -32,7 +33,7 @@ async def create_todo(data=Body(), db: Session = Depends(get_db)):
     return {"message": f"Задача добавлена"}
 
 
-@router.get("/todos/{todo_id}")
+@router.get("/todos/{todo_id}", response_model=TodoBase)
 async def show_todo(todo_id: int, db: Session = Depends(get_db)):
     todo = db.query(Todo).filter(todo_id == Todo.id).first()
     if todo is None:
