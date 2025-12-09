@@ -4,7 +4,8 @@ from database import SessionLocal
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from models import Todo
-from schemas import TodoBase, TodoOut, TodoIn
+from schemas import TodoBase, TodoOut, TodoIn, TodoUpdate, TodoUpdateOut
+from datetime import datetime
 
 router = APIRouter()
 
@@ -39,3 +40,15 @@ async def show_todo(todo_id: int, db: Session = Depends(get_db)):
     if todo is None:
         return JSONResponse(status_code=404, content={"message": f"Задача №{todo_id} не найдена"})
     return todo
+
+
+@router.put("/todos/{todo_id}", response_model=TodoUpdateOut)
+async def update_todo(todo_id: int, todo_in: TodoUpdate, db: Session = Depends(get_db)):
+    todo_query = db.query(Todo).filter(todo_id == Todo.id)
+    updated_todo = todo_query.first()
+    if updated_todo is None:
+        return JSONResponse(status_code=404, content={"message": f"Задача №{todo_id} не найдена"})
+    todo_query.update(todo_in.model_dump())
+    db.commit()
+    db.refresh(updated_todo)
+    return {"message": f"Задача №{todo_id} обновлена", "data": updated_todo}

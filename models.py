@@ -19,7 +19,7 @@ class Todo(Base):
     desc = Column(Text, nullable=False)
     status = Column(Enum(TodoStatus), default="ACTIVE")
     create_datetime = Column(DateTime, default=datetime.now)
-    update_datetime = Column(DateTime, default=datetime.now)
+    update_datetime = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
 
 Base.metadata.create_all(engine)

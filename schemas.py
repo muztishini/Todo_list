@@ -17,3 +17,13 @@ class TodoOut(BaseModel):
 class TodoIn(BaseModel):
     title: str
     desc: str
+
+
+class TodoUpdate(TodoIn):
+    status: str
+    
+    
+class TodoUpdateOut(BaseModel):
+    message: str
+    data: TodoBase
+    
