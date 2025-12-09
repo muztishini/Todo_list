@@ -52,3 +52,13 @@ async def update_todo(todo_id: int, todo_in: TodoUpdate, db: Session = Depends(g
     db.commit()
     db.refresh(updated_todo)
     return {"message": f"Задача №{todo_id} обновлена", "data": updated_todo}
+
+
+@router.delete("/todos/{todo_id}")
+async def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+    todo = db.query(Todo).filter(todo_id == Todo.id).first()
+    if todo is None:
+        return JSONResponse(status_code=404, content={"message": f"Задача №{todo_id} не найдена"})
+    db.delete(todo)
+    db.commit()
+    return {"message": f"Задача №{todo_id} удалена!"}
