@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from database import SessionLocal
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
 from models import Todo
 from schemas import TodoBase, TodoOut, TodoIn, TodoUpdate, TodoUpdateOut
-from datetime import datetime
 
 router = APIRouter()
 
@@ -40,6 +38,22 @@ async def show_todo(todo_id: int, db: Session = Depends(get_db)):
     if todo is None:
         return JSONResponse(status_code=404, content={"message": f"Задача №{todo_id} не найдена"})
     return todo
+
+
+@router.get("/todos/status/{todo_status}")
+async def show_todos_status(todo_status: str, db: Session = Depends(get_db)):
+    todos = db.query(Todo).filter(todo_status == Todo.status).all()
+    if todos == []:
+        return JSONResponse(status_code=404, content={"message": f"Задачи со статусом {todo_status} не найдены!"})
+    return todos
+
+
+@router.get("/todos/title/{todo_title}")
+async def show_todos_title(todo_title: str, db: Session = Depends(get_db)):
+    todos = db.query(Todo).filter(todo_title == Todo.title).order_by(Todo.create_datetime.asc()).all()
+    if todos == []:
+        return JSONResponse(status_code=404, content={"message": f"Задачи с заголовком {todo_title} не найдены!"})
+    return todos
 
 
 @router.put("/todos/{todo_id}", response_model=TodoUpdateOut)
