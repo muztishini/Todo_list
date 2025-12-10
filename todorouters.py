@@ -44,7 +44,7 @@ async def show_todo(todo_id: int, db: Session = Depends(get_db)):
 async def show_todos_status(todo_status: str, db: Session = Depends(get_db)):
     todos = db.query(Todo).filter(todo_status == Todo.status).all()
     if todos == []:
-        return JSONResponse(status_code=404, content={"message": f"Задачи со статусом {todo_status} не найдены!"})
+        return JSONResponse(status_code=404, content={"message": f"Задачи со статусом '{todo_status}' не найдены!"})
     return todos
 
 
@@ -52,7 +52,7 @@ async def show_todos_status(todo_status: str, db: Session = Depends(get_db)):
 async def show_todos_title(todo_title: str, db: Session = Depends(get_db)):
     todos = db.query(Todo).filter(todo_title == Todo.title).order_by(Todo.create_datetime.asc()).all()
     if todos == []:
-        return JSONResponse(status_code=404, content={"message": f"Задачи с заголовком {todo_title} не найдены!"})
+        return JSONResponse(status_code=404, content={"message": f"Задачи с заголовком '{todo_title}' не найдены!"})
     return todos
 
 
